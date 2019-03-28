@@ -1,0 +1,398 @@
+[
+    {
+        "index": 1,
+        "name": "Old Kent Road",
+        "type": "property",
+        "cost": 60,
+        "mortgage_value": 30,
+        "base_rent": 2,
+        "house_cost": 50,
+        "hotel_cost": 50,
+        "hotel_rent": 250,
+        "color": "brown",
+        "house_rents": [
+            10,
+            30,
+            90,
+            160
+        ]
+    },
+    {
+        "index": 3,
+        "name": "Whitechapel Road",
+        "type": "property",
+        "cost": 60,
+        "mortgage_value": 30,
+        "base_rent": 4,
+        "house_cost": 50,
+        "hotel_cost": 50,
+        "hotel_rent": 450,
+        "color": "brown",
+        "house_rents": [
+            20,
+            60,
+            180,
+            320
+        ]
+    },
+    {
+        "index": 6,
+        "name": "The Angel Islington",
+        "type": "property",
+        "cost": 100,
+        "mortgage_value": 50,
+        "base_rent": 6,
+        "house_cost": 50,
+        "hotel_cost": 50,
+        "hotel_rent": 550,
+        "color": "lightblue",
+        "house_rents": [
+            30,
+            90,
+            270,
+            400
+        ]
+    },
+    {
+        "index": 8,
+        "name": "Euston Road",
+        "type": "property",
+        "cost": 100,
+        "mortgage_value": 50,
+        "base_rent": 6,
+        "house_cost": 50,
+        "hotel_cost": 50,
+        "hotel_rent": 550,
+        "color": "lightblue",
+        "house_rents": [
+            30,
+            90,
+            270,
+            400
+        ]
+    },
+    {
+        "index": 9,
+        "name": "Pentonville Road",
+        "type": "property",
+        "cost": 120,
+        "mortgage_value": 60,
+        "base_rent": 8,
+        "house_cost": 50,
+        "hotel_cost": 50,
+        "hotel_rent": 600,
+        "color": "lightblue",
+        "house_rents": [
+            40,
+            100,
+            300,
+            450
+        ]
+    },
+    {
+        "index": 11,
+        "name": "Pall Mall",
+        "type": "property",
+        "cost": 140,
+        "mortgage_value": 70,
+        "base_rent": 10,
+        "house_cost": 100,
+        "hotel_cost": 100,
+        "hotel_rent": 750,
+        "color": "pink",
+        "house_rents": [
+            50,
+            150,
+            450,
+            625
+        ]
+    },
+    {
+        "index": 13,
+        "name": "Whitehall",
+        "type": "property",
+        "cost": 140,
+        "mortgage_value": 70,
+        "base_rent": 10,
+        "house_cost": 100,
+        "hotel_cost": 100,
+        "hotel_rent": 750,
+        "color": "pink",
+        "house_rents": [
+            50,
+            150,
+            450,
+            625
+        ]
+    },
+    {
+        "index": 14,
+        "name": "Northumberland Avenue",
+        "type": "property",
+        "cost": 160,
+        "mortgage_value": 80,
+        "base_rent": 12,
+        "house_cost": 100,
+        "hotel_cost": 100,
+        "hotel_rent": 900,
+        "color": "pink",
+        "house_rents": [
+            60,
+            180,
+            500,
+            700
+        ]
+    },
+    {
+        "index": 16,
+        "name": "Bow Street",
+        "type": "property",
+        "cost": 180,
+        "mortgage_value": 90,
+        "base_rent": 14,
+        "house_cost": 100,
+        "hotel_cost": 100,
+        "hotel_rent": 950,
+        "color": "orange",
+        "house_rents": [
+            70,
+            200,
+            550,
+            750
+        ]
+    },
+    {
+        "index": 18,
+        "name": "Marlborough Street",
+        "type": "property",
+        "cost": 180,
+        "mortgage_value": 90,
+        "base_rent": 14,
+        "house_cost": 100,
+        "hotel_cost": 100,
+        "hotel_rent": 950,
+        "color": "orange",
+        "house_rents": [
+            70,
+            200,
+            550,
+            750
+        ]
+    },
+    {
+        "index": 19,
+        "name": "Vine Street",
+        "type": "property",
+        "cost": 200,
+        "mortgage_value": 100,
+        "base_rent": 16,
+        "house_cost": 100,
+        "hotel_cost": 100,
+        "hotel_rent": 1000,
+        "color": "orange",
+        "house_rents": [
+            80,
+            220,
+            600,
+            800
+        ]
+    },
+    {
+        "index": 21,
+        "name": "Strand",
+        "type": "property",
+        "cost": 220,
+        "mortgage_value": 110,
+        "base_rent": 18,
+        "house_cost": 150,
+        "hotel_cost": 150,
+        "hotel_rent": 1050,
+        "color": "red",
+        "house_rents": [
+            90,
+            250,
+            700,
+            875
+        ]
+    },
+    {
+        "index": 23,
+        "name": "Fleet Street",
+        "type": "property",
+        "cost": 220,
+        "mortgage_value": 110,
+        "base_rent": 18,
+        "house_cost": 150,
+        "hotel_cost": 150,
+        "hotel_rent": 1050,
+        "color": "red",
+        "house_rents": [
+            90,
+            250,
+            700,
+            875
+        ]
+    },
+    {
+        "index": 24,
+        "name": "Trafalgar Square",
+        "type": "property",
+        "cost": 240,
+        "mortgage_value": 120,
+        "base_rent": 20,
+        "house_cost": 150,
+        "hotel_cost": 150,
+        "hotel_rent": 1100,
+        "color": "red",
+        "house_rents": [
+            100,
+            300,
+            750,
+            925
+        ]
+    },
+    {
+        "index": 26,
+        "name": "Leicester Square",
+        "type": "property",
+        "cost": 260,
+        "mortgage_value": 130,
+        "base_rent": 22,
+        "house_cost": 150,
+        "hotel_cost": 150,
+        "hotel_rent": 1150,
+        "color": "yellow",
+        "house_rents": [
+            110,
+            330,
+            800,
+            975
+        ]
+    },
+    {
+        "index": 27,
+        "name": "Coventry",
+        "type": "property",
+        "cost": 260,
+        "mortgage_value": 130,
+        "base_rent": 22,
+        "house_cost": 150,
+        "hotel_cost": 150,
+        "hotel_rent": 1150,
+        "color": "yellow",
+        "house_rents": [
+            110,
+            330,
+            800,
+            975
+        ]
+    },
+    {
+        "index": 29,
+        "name": "Piccadily",
+        "type": "property",
+        "cost": 280,
+        "mortgage_value": 140,
+        "base_rent": 24,
+        "house_cost": 150,
+        "hotel_cost": 150,
+        "hotel_rent": 1200,
+        "color": "yellow",
+        "house_rents": [
+            120,
+            360,
+            850,
+            1025
+        ]
+    },
+    {
+        "index": 31,
+        "name": "Regent Street",
+        "type": "property",
+        "cost": 300,
+        "mortgage_value": 150,
+        "base_rent": 26,
+        "house_cost": 200,
+        "hotel_cost": 200,
+        "hotel_rent": 1275,
+        "color": "green",
+        "house_rents": [
+            130,
+            390,
+            900,
+            1100
+        ]
+    },
+    {
+        "index": 32,
+        "name": "Oxford Street",
+        "type": "property",
+        "cost": 300,
+        "mortgage_value": 150,
+        "base_rent": 26,
+        "house_cost": 200,
+        "hotel_cost": 200,
+        "hotel_rent": 1275,
+        "color": "green",
+        "house_rents": [
+            130,
+            390,
+            900,
+            1100
+        ]
+    },
+    {
+        "index": 34,
+        "name": "Bond Street",
+        "type": "property",
+        "cost": 320,
+        "mortgage_value": 160,
+        "base_rent": 28,
+        "house_cost": 200,
+        "hotel_cost": 200,
+        "hotel_rent": 1400,
+        "color": "green",
+        "house_rents": [
+            150,
+            450,
+            1000,
+            1200
+        ]
+    },
+    {
+        "index": 37,
+        "name": "Park Lane",
+        "type": "property",
+        "cost": 350,
+        "mortgage_value": 175,
+        "base_rent": 35,
+        "house_cost": 200,
+        "hotel_cost": 200,
+        "hotel_rent": 1500,
+        "color": "blue",
+        "house_rents": [
+            175,
+            500,
+            1100,
+            1300
+        ]
+    },
+    {
+        "index": 39,
+        "name": "Mayfair",
+        "type": "property",
+        "cost": 400,
+        "mortgage_value": 200,
+        "base_rent": 50,
+        "house_cost": 200,
+        "hotel_cost": 200,
+        "hotel_rent": 2000,
+        "color": "blue",
+        "house_rents": [
+            200,
+            600,
+            1400,
+            1700
+        ]
+    }
+]
