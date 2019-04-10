@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>monopoly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <script src="ui/jquery/dist/jquery.min.js"></script>
+  <script src="ui/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!--Player add modal-->
+  <div class="modal" tabindex="-1" role="dialog" id="playerinit">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Players</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-control" id="player-init">
+            <div class="form-group row">
+              <label for="player1" class="col-sm-2 col-form-label">Player1</label>
+              <div class="col-sm-5">
+                <input class="form-control" id="player1" name="p1">
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="player2" class="col-sm-2 col-form-label">Player2</label>
+              <div class="col-sm-5">
+                <input class="form-control" id="player2" name="p2">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="pname-submit" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p id="msg"></p>
+
+
+<script>
+  var p1 = null
+  var p2 = null
+  $(document).ready(function() {$('#playerinit').modal({show: true})})
+  $('#playerinit').bind('submit',
+    function(e) {
+      e.preventDefault()
+      return false
+    }
+  )
+  $('#pname-submit').on('click',
+    function() {
+      p1 = document.getElementById('player1').value
+      p2 = document.getElementById('player2').value
+      document.getElementById('msg').innerText = `Players are ${p1} and ${p2}`
+    }
+  )
+</script>
+</body>
+
+</html>
