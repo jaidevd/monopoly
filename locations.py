@@ -46,7 +46,6 @@ class Property(BaseLocation):
 
     def sell(self, to='bank'):
         if self.is_mortgaged:
-            logger.warning(f'Attempting to sell {self} which is mortgaged.')
             return
         if getattr(self, 'is_developed', False):
             logger.warning(f'Attempting to sell {self} which is developed.')
@@ -67,10 +66,7 @@ class Property(BaseLocation):
 
     @property
     def is_developed(self):
-        try:
-            return self.has_hotel or self.n_houses
-        except AttributeError:
-            from ipdb import set_trace; set_trace()  # NOQA
+        return self.has_hotel or self.n_houses
 
     @property
     def rent(self):
@@ -99,6 +95,9 @@ class Property(BaseLocation):
         return rent
 
     def mortgage(self):
+        if self.is_developed:
+            logger.warning(f'Cannot mortgage developed property {self}!')
+            return
         if not self.is_mortgaged:
             self.is_mortgaged = True
             self.owner.balance += self.mortgage_value
@@ -151,13 +150,15 @@ class DevelopableProperty(Property):
 
     def build(self):
         if not self.has_hotel:
-            self.build_house()
-        elif self.n_houses == 4:
-            self.build_hotel()
+            if self.n_houses < 4:
+                self.build_house()
+            else:
+                self.build_hotel()
 
     def build_house(self):
         built = False
         if self.is_mortgaged:
+            from ipdb import set_trace; set_trace()  # NOQA
             logger.critical(f'Cannot build house as {self} is mortgaged!')
             return False
         if self.can_build_house:
@@ -179,6 +180,22 @@ class DevelopableProperty(Property):
             self.n_houses = 0
             built = True
         return built
+
+    def sell_structures(self):
+        if self.has_hotel:
+            self.sell_hotel()
+        elif self.n_houses > 0:
+            self.sell_house()
+
+    def sell_hotel(self):
+        self.has_hotel = False
+        self.owner.balance += self.house_cost
+        logger.warning(f'{self.owner} sold the hotel on {self.name} for ${self.house_cost}!')
+
+    def sell_house(self):
+        self.n_houses -= 1
+        self.owner.balance += self.house_cost
+        logger.warning(f'{self.owner} sold a house on {self.name} for ${self.house_cost}!')
 
 
 class IncomeTax(BaseLocation):

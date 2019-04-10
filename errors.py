@@ -8,3 +8,7 @@ class CannotSellMortgagedProperty(Exception):
 
 class CannotSellDevelopedProperty(Exception):
     pass
+
+
+class EndGame(Exception):
+    pass

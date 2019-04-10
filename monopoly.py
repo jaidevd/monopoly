@@ -2,7 +2,7 @@ import random
 import colorlog
 import locations as loc
 import ccs
-from errors import AlreadyMortgagedError
+from errors import AlreadyMortgagedError, EndGame
 
 roll = lambda: random.randint(1, 6)  # noqa: E731
 
@@ -34,6 +34,8 @@ def develop_colorgroup(c):
     """Attempt to build things on colorgroup `c`."""
     # check validity of colorgroup
     props = [p for p in loc.LOCATIONS if p.color == c]
+    if any([p.is_mortgaged for p in props]):
+        return
     if not getattr(props[0], 'is_developable', False):
         return
     assert len(set([p.owner.name for p in props])) == 1
@@ -45,6 +47,13 @@ def develop_colorgroup(c):
                 p.build()
             else:
                 out_of_cash = True
+
+
+def sell_structures(props):
+    props.sort(key=lambda x: x.cost)
+    while any([c.is_developed for c in props]):
+        for p in props:
+            p.sell_structures()
 
 
 class Player(object):
@@ -146,7 +155,12 @@ class Player(object):
         if self.balance < 0:
             self.attempt_sales()
         if self.balance < 0:
-            raise Exception(f'{self} is still bankrupt. {self} loses. 💀')
+            try:
+                assert len([c for c in self.properties if not c.is_mortgaged]) == 0
+            except AssertionError:
+                from ipdb import set_trace; set_trace()  # NOQA
+            logger.critical(f'{self} is still bankrupt.  {self} loses. 💀')
+            raise EndGame()
 
     def attempt_sales(self):
         if self.balance < 0:
@@ -165,15 +179,21 @@ class Player(object):
                     break
         if self.balance < 0:
             # look for undeveloped properties
-            properties = [p for p in self.properties if isinstance(p, loc.Property)]
-            properties = [p for p in properties if not p.is_developed]
+            properties = [p for p in self.properties if not p.is_developed]
             for p in properties:
                 p.sell()
                 if self.balance >= 0:
                     break
         if self.balance < 0:
-            # sell houses
-            from ipdb import set_trace; set_trace()  # NOQA
+            # sell houses - find the cheapest property left
+            saleable_props = [p for p in self.properties if p.is_developed]
+            if len(saleable_props) == 0:
+                logger.critical(f'{self} has nothing left to mortgage or sell.')
+            else:
+                sell_structures(saleable_props)
+        if self.balance < 0:
+            # Attempt mortgages one last time
+            self.attempt_mortgages()
 
     def attempt_mortgages(self):
         """Attempt to mortgage properties one by one until bankruptcy is resolved."""
@@ -324,7 +344,7 @@ def start_game(players):
 
 
 if __name__ == "__main__":
-    max_turns = 200
+    max_turns = 100
     current_turn = 1
     players = start_game('Alice Bob'.split())
     currentPlayer = pick_starter(players)
