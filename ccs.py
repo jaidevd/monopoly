@@ -3,13 +3,13 @@ import random
 
 class ChanceCommunityChest(object):
 
-    def __init__(self, logger, players):
+    def __init__(self, players, logger=None):
         self.logger = logger
         self.players = players
 
     def log(self, player):
-        self.logger.warn(f'{player.name} drew a card:')
-        self.logger.warn(self.__doc__)
+        if self.logger:
+            self.logger.warn(f'{player.name} drew a card: {self.__doc__}')
 
     def execute(self, player):
         self.log(player)
@@ -100,7 +100,8 @@ class Chance10(ChanceCommunityChest):
         n_hotels = 0
         for p in player.properties:
             n_houses += p.n_houses
-            n_hotels += p.n_hotels
+            if p.has_hotel:
+                n_hotels += 1
         cost = (n_hotels * 100) + (n_houses * 25)
         player.balance -= cost
         self.logger.warn(f'{player} made general repairs worth ${cost}.')
@@ -115,7 +116,8 @@ class Chance11(ChanceCommunityChest):
         n_hotels = 0
         for p in player.properties:
             n_houses += p.n_houses
-            n_hotels += p.n_hotels
+            if p.has_hotel:
+                n_hotels += 1
         cost = (n_hotels * 115) + (n_houses * 40)
         player.balance -= cost
         self.logger.warn(f'{player} made street repairs worth ${cost}.')
@@ -218,9 +220,7 @@ class CommunityChest6(ChanceCommunityChest):
     def execute(self, player):
         self.log(player)
         n = player.current_pos - 1
-        if n < 0:
-            n = 1
-        player.move(n)
+        player.move(-n)
 
 
 class CommunityChest7(ChanceCommunityChest):
@@ -318,11 +318,11 @@ def init(logger, players):
     chances = []
     for i in range(16):
         klass = globals().get('Chance{}'.format(i + 1))
-        chances.append(klass(logger, players))
+        chances.append(klass(players, logger))
     random.shuffle(chances)
     cs = []
     for i in range(16):
         klass = globals().get('CommunityChest{}'.format(i + 1))
-        cs.append(klass(logger, players))
+        cs.append(klass(players, logger))
     random.shuffle(cs)
     return chances, cs

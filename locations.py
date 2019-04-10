@@ -1,16 +1,23 @@
-import logging
 import random
-import coloredlogs
+import colorlog
 import json
+import errors
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-coloredlogs.install(level='INFO', logger=logger)
+handler = colorlog.StreamHandler()
+formatter = colorlog.ColoredFormatter(
+    "%(log_color)s%(levelname)-8s: %(log_color)s%(message)s",
+    style='%'
+)
+handler.setFormatter(formatter)
+logger = colorlog.getLogger('monopoly')
+logger.addHandler(handler)
+logger.setLevel('DEBUG')
 
 
 class BaseLocation(object):
-    for_sale = True
+    for_sale = False
     owner = None
+    color = ''
 
     def __init__(self, index, name, **kwargs):
         self.name = name
@@ -27,41 +34,43 @@ class BaseLocation(object):
 
 
 class Property(BaseLocation):
+    for_sale = True
+    owner = None
 
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+    def __init__(self, index, name, **kwargs):
+        super(Property, self).__init__(index, name, **kwargs)
         self.is_mortgaged = False
-        self.n_houses = self.n_hotels = 0
+        self.n_houses = 0
+        self.has_hotel = False
         self.owner = None
 
+    def sell(self, to='bank'):
+        if self.is_mortgaged:
+            logger.warning(f'Attempting to sell {self} which is mortgaged.')
+            return
+        if getattr(self, 'is_developed', False):
+            logger.warning(f'Attempting to sell {self} which is developed.')
+            return
+        self.owner.balance += self.cost
+        prev_owner = self.owner
+        if to == 'bank':
+            self.owner = None
+        else:
+            self.owner = to
+            self.owner.balance -= self.cost
+        logger.warning(f'{prev_owner} sold {self} to {to} for ${self.cost}!')
+
     def __repr__(self):
-        return "{} owned by {} with {} houses and {} hotels".format(
-            self.name, self.owner, self.n_houses, self.n_hotels
+        return "{} owned by {} with {} houses and {} hotel".format(
+            self.name, self.owner, self.n_houses, "a" if self.has_hotel else "no"
         )
 
     @property
     def is_developed(self):
-        return self.n_hotels or self.n_houses
-
-    def build_house(self):
-        if self.n_houses < 4:
-            self.n_houses += 1
-            logger.warning(f'{self.owner.name} built a house on {self.name}!')
-        else:
-            raise Exception('Can\'t build more houses on {}'.format(self.name))
-
-    def build_hotel(self):
-        if self.n_hotels == 0:
-            if self.n_houses == 4:
-                self.n_hotels = 1
-                logger.warning(
-                    f'{self.owner.name} built a hotel on {self.name}!')
-                self.n_houses = 0
-            else:
-                raise Exception('Need more houses.')
-        else:
-            raise Exception('Already have a hotel.')
+        try:
+            return self.has_hotel or self.n_houses
+        except AttributeError:
+            from ipdb import set_trace; set_trace()  # NOQA
 
     @property
     def rent(self):
@@ -76,7 +85,7 @@ class Property(BaseLocation):
                     rent = self.hotel_rent
             else:
                 # is color group owned?
-                siblings = self.get_siblings()
+                siblings = self.get_colorgroup()
                 if self.color in ('brown', 'blue'):
                     is_cg_owned = len(siblings) == 2
                 else:
@@ -93,11 +102,9 @@ class Property(BaseLocation):
         if not self.is_mortgaged:
             self.is_mortgaged = True
             self.owner.balance += self.mortgage_value
-            logger.warning(
-                (f'{self.owner.name} mortgaged {self.name} ',
-                 'for ${self.mortgage_value}!'))
+            logger.warning(f'{self.owner} mortgaged {self} for ${self.mortgage_value}! 💸')
         else:
-            raise Exception('Property already mortgaged.')
+            raise errors.AlreadyMortgagedError('Property already mortgaged!')
 
     def unmortgage(self):
         if self.is_mortgaged:
@@ -110,10 +117,68 @@ class Property(BaseLocation):
         else:
             raise Exception('Property not mortgaged!')
 
-    def get_siblings(self):
+    def get_colorgroup(self):
+        """Get a list of properties belonging to this colorgroup."""
         if self.owner:
             return [c for c in self.owner.properties if getattr(c, 'color', False) == self.color]
         return []
+
+
+class DevelopableProperty(Property):
+    is_developable = True
+
+    @property
+    def can_build_house(self):
+        if self.has_hotel:
+            return False
+        if self.n_houses >= 4:
+            return False
+        # can build a house if self has the least number of houses on the block
+        return self.n_houses == min([p.n_houses for p in self.get_colorgroup()])
+
+    @property
+    def can_build_hotel(self):
+        if self.has_hotel or self.n_houses < 4:
+            return False
+        # each sibling should have either four houses or a hotel
+        can_build = True
+        for p in self.get_colorgroup():
+            if p.name != self.name:
+                if not(p.has_hotel or p.n_houses == 4):
+                    can_build = False
+                    break
+        return can_build
+
+    def build(self):
+        if not self.has_hotel:
+            self.build_house()
+        elif self.n_houses == 4:
+            self.build_hotel()
+
+    def build_house(self):
+        built = False
+        if self.is_mortgaged:
+            logger.critical(f'Cannot build house as {self} is mortgaged!')
+            return False
+        if self.can_build_house:
+            if self.owner.balance >= self.house_cost:
+                self.n_houses += 1
+                logger.warning(f'{self.owner.name} built a house on {self.name}! 🏠')
+                self.owner.balance -= self.house_cost
+                built = True
+        return built
+
+    def build_hotel(self):
+        built = False
+        if self.is_mortgaged:
+            logger.critical(f'Cannot build house as {self} is mortgaged!')
+            return False
+        if self.can_build_hotel:
+            self.has_hotel = True
+            logger.warning(f'{self.owner.name} built a hotel on {self.name}! 🏨')
+            self.n_houses = 0
+            built = True
+        return built
 
 
 class IncomeTax(BaseLocation):
@@ -132,17 +197,17 @@ class LuxuryTax(BaseLocation):
         return 100
 
 
-class RailwayStation(BaseLocation):
+class RailwayStation(Property):
 
     RENTS = [25, 50, 100, 200]
     cost = 200
-    n_houses = 0
-    n_hotels = 0
+    mortgage_value = 100
+    color = 'railway'
 
     def __repr__(self):
         return "{} owned by {}.".format(self.name, self.owner)
 
-    def get_siblings(self):
+    def get_colorgroup(self):
         siblings = []
         if self.owner:
             for p in self.owner.properties:
@@ -152,18 +217,18 @@ class RailwayStation(BaseLocation):
 
     @property
     def rent(self):
-        siblings = self.get_siblings()
+        siblings = self.get_colorgroup()
         if len(siblings):
             return self.RENTS[len(siblings) - 1]
 
 
-class UtilityCompany(BaseLocation):
+class UtilityCompany(Property):
 
     cost = 150
-    n_houses = 0
-    n_hotels = 0
+    mortgage_value = 75
+    color = 'utilityco'
 
-    def get_siblings(self):
+    def get_colorgroup(self):
         siblings = []
         if self.owner:
             for p in self.owner.properties:
@@ -173,7 +238,7 @@ class UtilityCompany(BaseLocation):
 
     @property
     def rent(self):
-        siblings = self.get_siblings()
+        siblings = self.get_colorgroup()
         if len(siblings) == 1:
             rent = 4 * (random.randint(1, 7) + random.randint(1, 7))
         elif len(siblings) == 2:
@@ -234,5 +299,5 @@ LOCATIONS = [
 
 with open('locations.json', 'r') as fout:
     properties = json.load(fout)
-LOCATIONS.extend([Property(**kwargs) for kwargs in properties])
+LOCATIONS.extend([DevelopableProperty(**kwargs) for kwargs in properties])
 LOCATIONS.sort(key=lambda x: x.index)
