@@ -48,9 +48,11 @@
   </div>
 
   <p id="msg"></p>
+  <button type="button" id="next">Next</button>
 
 
 <script>
+  var current_player = null;
   var p1 = null
   var p2 = null
   $(document).ready(function() {$('#playerinit').modal({show: true})})
@@ -62,11 +64,23 @@
   )
   $('#pname-submit').on('click',
     function() {
+      $('#playerinit').modal('hide')
       p1 = document.getElementById('player1').value
       p2 = document.getElementById('player2').value
       document.getElementById('msg').innerText = `Players are ${p1} and ${p2}`
+      $('#next').text('Pick Starting Player')
     }
   )
+
+  $('#next').on('click', function(e) {
+    if ($('#next').text() == 'Pick Starting Player') {
+      $.get('/pick-starter').done(function(p) {
+        $('#msg').text(`Player ${p} starts!`)
+        $('#next').text(`Play ${p}\'s turn`)
+        current_player = p
+      })
+    }
+  })
 </script>
 </body>
 

@@ -1,3 +1,4 @@
+import cmd
 import random
 import colorlog
 import locations as loc
@@ -343,14 +344,30 @@ def start_game(players):
     return players
 
 
+class Console(cmd.Cmd):
+    intro = "Welcome to the Monopoly console."
+    prompt = '🎩 '
+
+    def do_start_game(self, arg):
+        self.players = start_game(arg.split())
+        self.pdict = {c.name: c for c in self.players}
+        self.current_player = pick_starter(self.players)
+        print(f'{self.current_player} starts the Game!')
+        print(f'Type play_turn {self.current_player} to continue.')
+
+    def do_play_turn(self, arg):
+        self.pdict[arg].play_turn()
+
+
 if __name__ == "__main__":
-    max_turns = 100
-    current_turn = 1
-    players = start_game('Alice Bob'.split())
-    currentPlayer = pick_starter(players)
-    while current_turn <= max_turns:
-        logger.debug('Turn {} starts.'.format(current_turn))
-        currentPlayer.play_turn()
-        currentPlayer = pick_next_player(currentPlayer, players)
-        logger.debug('Turn {} ends.'.format(current_turn))
-        current_turn += 1
+    Console().cmdloop()
+    # max_turns = 100
+    # current_turn = 1
+    # players = start_game('Alice Bob'.split())
+    # currentPlayer = pick_starter(players)
+    # while current_turn <= max_turns:
+    #     logger.debug('Turn {} starts.'.format(current_turn))
+    #     currentPlayer.play_turn()
+    #     currentPlayer = pick_next_player(currentPlayer, players)
+    #     logger.debug('Turn {} ends.'.format(current_turn))
+    #     current_turn += 1

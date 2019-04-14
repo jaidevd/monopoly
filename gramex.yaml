@@ -24,6 +24,11 @@ url:
     handler: FunctionHandler
     kwargs:
       function: webapp.roll
+  pick-starter:
+    pattern: /$YAMLURL/pick-starter
+    handler: FunctionHandler
+    kwargs:
+      function: webapp.pick_starter
 
 
 
