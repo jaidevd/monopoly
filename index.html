@@ -12,76 +12,90 @@
 <body>
   <script src="ui/jquery/dist/jquery.min.js"></script>
   <script src="ui/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="ui/lodash/lodash.min.js"></script>
+  <script src="js/monopoly.js"></script>
 
-  <!--Player add modal-->
-  <div class="modal" tabindex="-1" role="dialog" id="playerinit">
+  <!--add players-->
+  <div class="modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Add Players</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
         <div class="modal-body">
-          <div class="form-control" id="player-init">
+          <form>
             <div class="form-group row">
-              <label for="player1" class="col-sm-2 col-form-label">Player1</label>
-              <div class="col-sm-5">
-                <input class="form-control" id="player1" name="p1">
+              <label for="player1name" class="col-sm-2 col-form-label">Player 1</label>
+              <div class="col-sm-10">
+                <input class="form-control" id="player1name" placeholder="Alice">
               </div>
             </div>
             <div class="form-group row">
-              <label for="player2" class="col-sm-2 col-form-label">Player2</label>
-              <div class="col-sm-5">
-                <input class="form-control" id="player2" name="p2">
+              <label for="player2name" class="col-sm-2 col-form-label">Player 2</label>
+              <div class="col-sm-10">
+                <input class="form-control" id="player2name" placeholder="Bob">
               </div>
             </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="pname-submit" class="btn btn-primary">Save changes</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <div class="form-group row">
+              <div class="col-sm-10">
+                <button id="start-game" class="btn btn-primary">Start Game</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   </div>
 
-  <p id="msg"></p>
-  <button type="button" id="next">Next</button>
+  <div class="container-fluid">
+    <div class="row">
 
+      <!-- p1 pane-->
+      <div class="col-sm">
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title" id="p1name"></h5>
+            <h6 class="card-subtitle mb-2 text-muted">Balance: $<span id="p1balance"></span></h6>
+            <p class="card-text" id="p1properties"></p>
+            <button class="btn btn-primary" id="p1roll"><i class="fa fa-dice"></i> Roll</button>
+          </div>
+        </div>
+      </div>
 
-<script>
-  var current_player = null;
-  var p1 = null
-  var p2 = null
-  $(document).ready(function() {$('#playerinit').modal({show: true})})
-  $('#playerinit').bind('submit',
-    function(e) {
-      e.preventDefault()
-      return false
-    }
-  )
-  $('#pname-submit').on('click',
-    function() {
-      $('#playerinit').modal('hide')
-      p1 = document.getElementById('player1').value
-      p2 = document.getElementById('player2').value
-      document.getElementById('msg').innerText = `Players are ${p1} and ${p2}`
-      $('#next').text('Pick Starting Player')
-    }
-  )
+      <!-- container middle pane-->
+      <div class="col-sm">
+        <div class="card overflow-auto">
+          <div class="card-body">
+            <div id="log"></div>
+          </div>
+        </div>
+      </div>
+      <!-- /middle pane-->
 
-  $('#next').on('click', function(e) {
-    if ($('#next').text() == 'Pick Starting Player') {
-      $.get('/pick-starter').done(function(p) {
-        $('#msg').text(`Player ${p} starts!`)
-        $('#next').text(`Play ${p}\'s turn`)
-        current_player = p
-      })
-    }
-  })
-</script>
+      <!-- p2 pane-->
+      <div class="col-sm">
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title" id="p2name"></h5>
+            <h6 class="card-subtitle mb-2 text-muted">Balance: $<span id="p2balance"></span></h6>
+            <p class="card-text" id="p2properties"></p>
+            <button class="btn btn-primary" id="p2roll"><i class="fa fa-dice"></i> Roll</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    var players = []
+    var currentPlayer = null
+    $(document).ready(() => $('.modal').modal({show: true}))
+    $('#start-game').on('click', start_game)
+    $('#p1roll').on('click', play)
+    $('#p2roll').on('click', play)
+  </script>
+
 </body>
 
 </html>

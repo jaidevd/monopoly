@@ -9,7 +9,6 @@ url:
     handler: FileHandler
     kwargs:
       path: $YAMLPATH/index.html
-      # See https://learn.gramener.com/guide/auth/#authorization for auth rules
       template: true
   start-game:
     pattern: /$YAMLURL/playerinit
@@ -19,17 +18,27 @@ url:
       headers:
         Cache-Control: no-store
         xsrf_cookies: false
-  throw-dice:
-    pattern: /$YAMLURL/roll/([a-z|A-Z]+)
+  play:
+    pattern: /$YAMLURL/play
     handler: FunctionHandler
     kwargs:
-      function: webapp.roll
-  pick-starter:
-    pattern: /$YAMLURL/pick-starter
+      function: webapp.play_turn
+      headers:
+        Content-Type: text/html
+  next-player:
+    pattern: /$YAMLURL/nextplayer
     handler: FunctionHandler
     kwargs:
-      function: webapp.pick_starter
-
+      function: webapp.pick_next_player
+      headers:
+        Content-Type: text/plain
+  get-balance:
+    pattern: /$YAMLURL/balance/(.*)
+    handler: FunctionHandler
+    kwargs:
+      function: webapp.get_balance
+      headers:
+        Content-Type: text/plain
 
 
 # Gramex init configurations for app: monopoly

@@ -1,7 +1,9 @@
+import os
 import cmd
 import random
 import colorlog
 import locations as loc
+from logging import FileHandler
 import ccs
 from errors import AlreadyMortgagedError, EndGame
 
@@ -12,9 +14,13 @@ formatter = colorlog.ColoredFormatter(
     "%(log_color)s%(levelname)-8s: %(log_color)s%(message)s",
     style='%'
 )
+if os.path.exists('log.txt'):
+    os.remove('log.txt')
+fh = FileHandler('log.txt', encoding='utf-8')
 handler.setFormatter(formatter)
 logger = colorlog.getLogger('monopoly')
 logger.setLevel('DEBUG')
+logger.addHandler(fh)
 
 
 def _get_max_rate(c):
@@ -72,6 +78,10 @@ class Player(object):
     def __repr__(self):
         return self.name
 
+    def roll(self):
+        x, y = roll(), roll()
+        self.rolls.append((x, y))
+
     def move(self, n):
         self.current_pos += n
         if self.current_pos > 39:
@@ -101,7 +111,7 @@ class Player(object):
             self.has_gojf = False
             self.in_jail = False
             logger.warning(f'{self} used a GOJF card to GOJF!')
-            self.play_turn()
+            self._play_turn()
         else:
             # choose between paying a fine and staying
             if random.choice([True, False]):
@@ -109,7 +119,7 @@ class Player(object):
                 self.balance -= 50
                 logger.warning(f'{self} paid a $50 fine to GOJ!')
                 self.in_jail = False
-                self.play_turn()
+                self._play_turn()
             else:
                 self.goj_droll_attempt += 1
                 if self.goj_droll_attempt < 4:
@@ -118,16 +128,16 @@ class Player(object):
                     if x == y:
                         self.in_jail = False
                         logger.warning(f'{self} rolled doubles and GOJF!')
-                        self.play_turn(x, y)
+                        self._play_turn(x, y)
                 else:
                     logger.warning(
                         f'{self} failed to get out of jail for 3 turns.')
                     self.balance -= 50
                     logger.warning(f'{self} paid a $50 fine to GOJ!')
                     self.in_jail = False
-                    self.play_turn()
+                    self._play_turn()
 
-    def play_turn(self, *args):
+    def _play_turn(self, *args):
         self.attempt_building()
         if self.in_jail:
             self.try_get_out_of_jail()
@@ -149,7 +159,7 @@ class Player(object):
             logger.critical(f'{self} is bankrupt! 😰')
             self.resolve_bankruptcy()
         if x == y:
-            self.play_turn()
+            self._play_turn()
 
     def resolve_bankruptcy(self):
         self.attempt_mortgages()
@@ -345,29 +355,89 @@ def start_game(players):
 
 
 class Console(cmd.Cmd):
-    intro = "Welcome to the Monopoly console."
-    prompt = '🎩 '
+    intro = """Welcome to the Monopoly console. Start the game by typing:
+    start player1 player2
+    """
+    prompt = '🎩 > '
 
-    def do_start_game(self, arg):
+    def show_player_options(self):
+        if loc.for_sale:
+            print(f'{loc.name} is for sale!')
+
+    def do_exit(self, arg):
+        return True
+
+    do_EOF = do_exit
+
+    def do_start(self, arg):
+        """Start the game by adding a list of players."""
         self.players = start_game(arg.split())
+        for p in self.players:
+            p.greedy = False
         self.pdict = {c.name: c for c in self.players}
         self.current_player = pick_starter(self.players)
-        print(f'{self.current_player} starts the Game!')
-        print(f'Type play_turn {self.current_player} to continue.')
+        print(f'Type play to continue.')
 
-    def do_play_turn(self, arg):
-        self.pdict[arg].play_turn()
+    def do_buy(self, *args):
+        """Buy a property."""
+        p = self.current_player
+        location = loc.LOCATIONS[p.current_pos]
+        p.purchase(location)
+
+    def do_play(self, *args):
+        """Move a player by rolling dice and see other options."""
+        p = self.current_player
+        x, y = roll(), roll()
+        p.rolls.append((x, y))
+        if x == y:
+            logger.warning(f'{p} rolled doubles!')
+            # check if this is the third roll:
+            if len(p.rolls) > 2:
+                (x1, y1), (x2, y2) = self.rolls[-3:-1]
+                if x1 == y1 and x2 == y2:
+                    logger.critical(f'{p} rolled doubles thrice! 💩')
+                    p.go_to_jail()
+                    return
+            p.move(x + y)
+
+            self.current_player = p
+            return
+        self.current_player.move(x + y)
+        self.current_player = pick_next_player(self.current_player, self.players)
+        print(f'{self.current_player} goes next.')
+        print(f'Type play {self.current_player} continue.')
+
+    do_p = do_play
+
+
+class Game(object):
+
+    def __init__(self):
+        self.players = {}
+
+    def add_player(self, p):
+        self.players[p.name] = p
+
+    def add_players(self, *args):
+        for p in args:
+            self.add_player(p)
+
+    def play(self, player):
+        self.players[player]._play_turn()
+
+    def pick_next_player(self, player):
+        return pick_next_player(self.players[player], list(self.players.values())).name
 
 
 if __name__ == "__main__":
-    Console().cmdloop()
-    # max_turns = 100
-    # current_turn = 1
-    # players = start_game('Alice Bob'.split())
-    # currentPlayer = pick_starter(players)
-    # while current_turn <= max_turns:
-    #     logger.debug('Turn {} starts.'.format(current_turn))
-    #     currentPlayer.play_turn()
-    #     currentPlayer = pick_next_player(currentPlayer, players)
-    #     logger.debug('Turn {} ends.'.format(current_turn))
-    #     current_turn += 1
+    # Console().cmdloop()
+    max_turns = 100
+    current_turn = 1
+    players = start_game('Alice Bob'.split())
+    currentPlayer = pick_starter(players)
+    while current_turn <= max_turns:
+        logger.debug('Turn {} starts.'.format(current_turn))
+        currentPlayer._play_turn()
+        currentPlayer = pick_next_player(currentPlayer, players)
+        logger.debug('Turn {} ends.'.format(current_turn))
+        current_turn += 1
