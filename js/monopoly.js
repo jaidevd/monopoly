@@ -34,14 +34,13 @@ function pick_starter() {
   let winner = _.orderBy(rolls, 'rolls').pop().name
   msg += `<p>${winner} plays first.</p>`
   currentPlayer = winner
-  enableDisableTurns()
   $('#log').html(msg)
 }
 
 function play() {
   $.get('play', {'p1': currentPlayer}, (e) => {
     $('#log').html(e)
-    let card = $('.card')
+    let card = $('#logcard')
     card.scrollTop(card.prop('scrollHeight'))
     pick_next_player()
     updateBalance()
@@ -52,7 +51,6 @@ function play() {
 function pick_next_player() {
   $.post('nextplayer', {'player': currentPlayer}, (e) => {
     currentPlayer = e
-    enableDisableTurns()
   })
 }
 
@@ -72,19 +70,5 @@ function updateBalance() {
       }
       $(`#p${id}balance`).html(`<span class="text-${sign}">${balance}</span>`)
     })
-  }
-}
-
-function enableDisableTurns() {
-  for (let index = 0; index < players.length; index++) {
-    let pl = players[index]
-    let id = index + 1
-    if (pl == currentPlayer) {
-      $(`#p${id}roll`).prop('disabled', false)
-      $(`#p${id}roll`).prop('enabled', true)
-    } else {
-      $(`#p${id}roll`).prop('disabled', true)
-      $(`#p${id}roll`).prop('enabled', false)
-    }
   }
 }

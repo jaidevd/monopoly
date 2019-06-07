@@ -57,18 +57,18 @@
             <h5 class="card-title" id="p1name"></h5>
             <h6 class="card-subtitle mb-2 text-muted">Balance: $<span id="p1balance"></span></h6>
             <p class="card-text" id="p1properties"></p>
-            <button class="btn btn-primary" id="p1roll"><i class="fa fa-dice"></i> Roll</button>
           </div>
         </div>
       </div>
 
       <!-- container middle pane-->
       <div class="col-sm">
-        <div class="card overflow-auto">
+        <div class="card" style="height: 75vh; overflow-y: scroll" id="logcard">
           <div class="card-body">
             <div id="log"></div>
           </div>
         </div>
+        <button class="btn btn-primary" id="play"><i class="fa fa-dice"></i> Play</button>
       </div>
       <!-- /middle pane-->
 
@@ -79,7 +79,6 @@
             <h5 class="card-title" id="p2name"></h5>
             <h6 class="card-subtitle mb-2 text-muted">Balance: $<span id="p2balance"></span></h6>
             <p class="card-text" id="p2properties"></p>
-            <button class="btn btn-primary" id="p2roll"><i class="fa fa-dice"></i> Roll</button>
           </div>
         </div>
       </div>
@@ -92,8 +91,7 @@
     var currentPlayer = null
     $(document).ready(() => $('.modal').modal({show: true}))
     $('#start-game').on('click', start_game)
-    $('#p1roll').on('click', play)
-    $('#p2roll').on('click', play)
+    $('#play').on('click', play)
   </script>
 
 </body>
