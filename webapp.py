@@ -10,6 +10,7 @@ def _read_log():
 
 
 def start_game(handler):
+    open('log.txt', 'w').close()
     p1 = handler.get_argument('p1')
     p2 = handler.get_argument('p2')
     p1 = mp.Player(p1)
@@ -36,3 +37,25 @@ def pick_next_player(handler):
 def get_balance(handler):
     pl = handler.path_args[0]
     return str(game.players[pl].balance)
+
+
+def get_assets(handler):
+    pl = handler.path_args[0]
+    pl = game.players[pl]
+    return pl.serialize()
+
+
+def get_developable_colorgroup(handler):
+    pl = handler.path_args[0]
+    pl = game.players[pl]
+    cg = pl.get_owned_colorgroups()
+    if len(cg) == 0:
+        return ''
+    cg.sort(key=lambda x: -mp._get_max_rate(x))
+    return cg[0]
+
+
+def develop_properties(handler):
+    cg = handler.path_args[0]
+    mp.develop_colorgroup(cg)
+    return _read_log()

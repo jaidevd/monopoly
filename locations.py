@@ -14,6 +14,18 @@ logger.addHandler(handler)
 logger.setLevel('DEBUG')
 
 
+BS_COLORS = {
+    "brown": "",
+    "lightblue": "info",
+    "pink": "",
+    "orange": "",
+    "red": "danger",
+    "yellow": "warning",
+    "green": "success",
+    "blue": "primary"
+}
+
+
 class BaseLocation(object):
     for_sale = False
     owner = None
@@ -43,6 +55,18 @@ class Property(BaseLocation):
         self.n_houses = 0
         self.has_hotel = False
         self.owner = None
+
+    def serialize(self):
+        return {
+            'name': self.name,
+            'owner': self.owner.name,
+            'for_sale': self.for_sale,
+            'n_houses': self.n_houses,
+            'has_hotel': self.has_hotel,
+            'is_mortgaged': self.is_mortgaged,
+            'color': self.color,
+            'rent': self.rent
+        }
 
     def sell(self, to='bank'):
         if self.is_mortgaged:

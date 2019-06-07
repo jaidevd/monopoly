@@ -14,7 +14,7 @@ function start_game(e) {
     $('.modal').modal('toggle')
     players.push(p1, p2)
     pick_starter()
-    updateBalance()
+    updateAssets()
   })
 }
 
@@ -38,12 +38,23 @@ function pick_starter() {
 }
 
 function play() {
+  let assets = playerAssets[currentPlayer]
+  let cgroup = ""
+  if (assets.colorgroups.length > 0) {
+    $.get(`developable/${currentPlayer}`, (e) => {
+      cgroup = e
+      let to_develop = confirm(`${currentPlayer}, you can develop the ${cgroup} colorgroup. Proceed?`)
+      if (to_develop) {
+        $.get(`build/${cgroup}`)
+      }
+    })
+  }
   $.get('play', {'p1': currentPlayer}, (e) => {
     $('#log').html(e)
     let card = $('#logcard')
     card.scrollTop(card.prop('scrollHeight'))
     pick_next_player()
-    updateBalance()
+    updateAssets()
   })
 }
 
@@ -54,21 +65,50 @@ function pick_next_player() {
   })
 }
 
-function updateBalance() {
+function updateAssets() {
   for (let index = 0; index < players.length; index++) {
     let pl = players[index]
     let id = index + 1
-    $.get(`balance/${pl}`, (e) => {
-      let balance = parseInt(e)
-      let sign = ""
-      if (balance > 0) {
-        sign = "success"
-      } else if (balance < 0) {
-        sign = "danger"
-      } else {
-        sign = "warning"
-      }
-      $(`#p${id}balance`).html(`<span class="text-${sign}">${balance}</span>`)
-    })
+    drawStatusCard(pl, id)
   }
+}
+
+function drawStatusCard(player, id) {
+  let bdiv = $(`#p${id}balance`)
+  let pdiv = $(`#p${id}properties`)
+  $.getJSON(`wealth/${player}`, (e) => {
+    playerAssets[player] = e
+
+    let bcol = ""
+    if (e.balance < 0) {
+      bcol = "danger"
+    } else if (e.balance == 0) {
+      bcol = "warning"
+    } else {
+      bcol = "success"
+    }
+    bdiv.html(`<span class="text-${bcol}">${e.balance}</span>`)
+
+    let html = ""
+    if (e.in_jail) {
+      html += `<p><span class="text-danger">${player} is in Jail!</span></p>`
+    }
+    html += "<p>Properties Owned:</p><ul>"
+    for (let index=0; index < e.properties.length; index++) {
+      let property = e.properties[index]
+      if (property.is_mortgaged) {
+        html += `<li>${property.name} <span class="badge badge-danger">Mortgaged<span></li>`
+      } else {
+        html += `<li>${property.name}</li>`
+      }
+    }
+    html += "</ul>"
+    html += "<p>Colorgroups:</p><ul>"
+    for (let index=0; index < e.colorgroups.length; index++) {
+      let cg = e.colorgroups[index]
+      html += `<li>${cg}</li>`
+    }
+    html += "</ul>"
+    pdiv.html(html)
+  })
 }

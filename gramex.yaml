@@ -24,6 +24,7 @@ url:
     kwargs:
       function: webapp.play_turn
       headers:
+        Cache-Control: no-store
         Content-Type: text/html
   next-player:
     pattern: /$YAMLURL/nextplayer
@@ -31,6 +32,7 @@ url:
     kwargs:
       function: webapp.pick_next_player
       headers:
+        Cache-Control: no-store
         Content-Type: text/plain
   get-balance:
     pattern: /$YAMLURL/balance/(.*)
@@ -38,7 +40,32 @@ url:
     kwargs:
       function: webapp.get_balance
       headers:
+        Cache-Control: no-store
         Content-Type: text/plain
+  check-assets:
+    pattern: /$YAMLURL/wealth/(.*)
+    handler: FunctionHandler
+    kwargs:
+      function: webapp.get_assets
+      headers:
+        Content-Type: application/json
+        Cache-Control: no-store
+  best-developable-cg:
+    pattern: /$YAMLURL/developable/(.*)
+    handler: FunctionHandler
+    kwargs:
+      function: webapp.get_developable_colorgroup
+      headers:
+        Content-Type: text/plain
+        Cache-Control: no-store
+  building-properties:
+    pattern: /$YAMLURL/build/(.*)
+    handler: FunctionHandler
+    kwargs:
+      function: webapp.develop_properties
+      headers:
+        Content-Type: text/html
+        Cache-Control: no-store
 
 
 # Gramex init configurations for app: monopoly

@@ -75,6 +75,16 @@ class Player(object):
         self.goj_droll_attempt = 0
         self.greedy = True
 
+    def serialize(self):
+        return {
+          'name': self.name,
+          'in_jail': self.in_jail,
+          'balance': self.balance,
+          'properties': [p.serialize() for p in self.properties],
+          'has_gojf': self.has_gojf,
+          'colorgroups': self.get_owned_colorgroups()
+        }
+
     def __repr__(self):
         return self.name
 
@@ -138,7 +148,7 @@ class Player(object):
                     self._play_turn()
 
     def _play_turn(self, *args):
-        self.attempt_building()
+        # self.attempt_building()
         if self.in_jail:
             self.try_get_out_of_jail()
         if len(args) == 2:

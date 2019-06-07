@@ -68,7 +68,14 @@
             <div id="log"></div>
           </div>
         </div>
-        <button class="btn btn-primary" id="play"><i class="fa fa-dice"></i> Play</button>
+        <div class="row">
+          <div class="col-sm">
+            <button class="btn btn-color1" id="play"><i class="fa fa-dice"></i>
+            Play</button>
+            <button class="btn btn-warning" id="reset"><i class="fa fa-redo"></i>
+            Reset</button>
+          </div>
+        </div>
       </div>
       <!-- /middle pane-->
 
@@ -78,7 +85,7 @@
           <div class="card-body">
             <h5 class="card-title" id="p2name"></h5>
             <h6 class="card-subtitle mb-2 text-muted">Balance: $<span id="p2balance"></span></h6>
-            <p class="card-text" id="p2properties"></p>
+            <div class="card-text" id="p2properties"></div>
           </div>
         </div>
       </div>
@@ -88,9 +95,11 @@
 
   <script>
     var players = []
+    var playerAssets = {}
     var currentPlayer = null
     $(document).ready(() => $('.modal').modal({show: true}))
     $('#start-game').on('click', start_game)
+    $('#reset').on('click', start_game)
     $('#play').on('click', play)
   </script>
 
